@@ -1,31 +1,68 @@
-const express = require("express");
-const app = express();
-const cors = require("cors");
-const corsOptions = {
-    origin: ["http://localhost:5174"],
+import express from "express";
+import { pool } from "./config/db.js";
+import authRoute from "./routes/auth.routes.js";
+import cors from "cors";
+import { requestLogger } from "./middleware/requestLogger.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import logger from "./config/logger.js";
+import cookieParser from "cookie-parser";
+
+const postgressConnection = async () => {
+  try {
+    const client = await pool.connect();
+    client.release();
+    logger.info("Database connected successfully");
+  } catch (error) {
+    logger.error(`Database connection error: ${error.message}`);
+    process.exit(1);
+  }
 };
-app.use(cors(corsOptions));
 
-const db = require('./db');
+postgressConnection();
 
-app.get("/api", (req, res) => {
-    res.json({ message: "hello from express" });
+const app = express();
+
+app.use(cookieParser());
+
+app.use(requestLogger);
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
+// app.use("/api/v1/books", booksRoute);
+// app.use("/api/v1/authors", authorsRoute);
+app.use("/api/v1/auth", authRoute);
+
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 3000;
+
+const server = app.listen(PORT, () => {
+  logger.info(`Server is running on http://localhost:${PORT}`);
 });
 
-// Test database connection
-app.get("/test-db", async (req, res) => {
+const shutdown = async () => {
+  logger.info("Shutting down server.");
+
+  server.close(async () => {
+    logger.info("HTTP server closed.");
+
     try {
-        const result = await db.query('SELECT NOW()');
-        res.json({
-            message: "Database connection successful!",
-            time: result.rows[0].now
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Database connection failed", error: err.message });
+      await pool.end();
+      logger.info("PostgreSQL connection closed.");
+    } catch (error) {
+      logger.error(`Error closing DB connection ${error.message}`);
     }
-});
 
-app.listen(5000, () => {
-    console.log("server running on port 5000");
-});
+    logger.info("Shutdown complete.");
+    process.exit(0);
+  });
+};
+
+process.on("SIGINT", shutdown);

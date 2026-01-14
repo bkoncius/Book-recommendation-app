@@ -1,4 +1,5 @@
-import { pool } from "../config/db";
+import { pool } from "../config/db.js";
+import argon2 from "argon2";
 
 const authService = {
   register: async ({ email, password }) => {
@@ -10,9 +11,9 @@ const authService = {
       const passwordHash = await argon2.hash(password);
 
       const userInsertQuery = `
-                INSERT INTO users (email)
+                INSERT INTO users (username)
                 VALUES ($1)
-                RETURNING id, email, role, created_at, updated_at;
+                RETURNING id, email, role_id, created_at, updated_at;
             `;
 
       const userValues = [email];

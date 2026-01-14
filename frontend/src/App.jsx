@@ -1,29 +1,28 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
 function App() {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
-  const fetchAPI = async () =>{
+  const fetchAPI = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api");
+      const response = await axios.get("http://localhost:3000");
       setMessage(response.data.message);
     } catch (error) {
-      console.error("Error fetching data:", error)
-      setMessage("failed to connect to backend")
+      console.error("Error fetching data:", error);
+      setMessage("failed to connect to backend");
     }
   };
-    
-  useEffect(()=>{
-    fetchAPI();
 
-  },[])
+  useEffect(() => {
+    fetchAPI();
+  }, []);
 
   return (
     <>
       <h1>Book recommendation</h1>
       <p>Backend status: {message} </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
