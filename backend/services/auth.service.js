@@ -11,14 +11,15 @@ const authService = {
       const passwordHash = await argon2.hash(password);
 
       const userInsertQuery = `
-                INSERT INTO users (username)
+                INSERT INTO users (email)
                 VALUES ($1)
-                RETURNING id, email, role_id, created_at, updated_at;
+                RETURNING id, role_id, created_at, email;
             `;
 
       const userValues = [email];
 
       const userResult = await client.query(userInsertQuery, userValues);
+      console.log(userResult);
       const user = userResult.rows[0];
 
       const secretInsertQuery = `
@@ -33,7 +34,7 @@ const authService = {
 
       await client.query("COMMIT");
 
-      return { id: user.id, email: user.email, role: user.role };
+      return { id: user.id, email: user.email, role_id: user.role_id };
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
