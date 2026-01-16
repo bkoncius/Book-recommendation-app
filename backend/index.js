@@ -20,6 +20,8 @@ const postgressConnection = async () => {
 
 postgressConnection();
 
+console.log("JWT_SECRET:", process.env.JWT_ACCESS_SECRET);
+
 const app = express();
 
 app.use(cookieParser());
