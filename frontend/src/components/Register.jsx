@@ -1,31 +1,38 @@
-import { useForm } from "react-hook-form";
-import { useAuth } from "../context/useAuth";
-import { useNavigate, Link } from "react-router";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate, Link } from "react-router";
+import api from "../lib/axios";
 
-function Login() {
+function Register() {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm();
-  const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const password = watch("password");
 
   const onSubmit = async (data) => {
+    if (data.password !== data.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setError(null);
     setLoading(true);
+
     try {
-      const loggedUser = await login(data);
-      if (loggedUser.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      await api.post("/auth/register", {
+        email: data.email,
+        password: data.password,
+      });
+      // After successful registration, redirect to login
+      navigate("/login");
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -35,7 +42,7 @@ function Login() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg  p-8 w-full max-w-md">
         <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
-          Login
+          Create Account
         </h2>
 
         {error && (
@@ -77,6 +84,20 @@ function Login() {
             <input
               {...register("password", {
                 required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+                maxLength: {
+                  value: 20,
+                  message: "Password must be at most 20 characters",
+                },
+                pattern: {
+                  value:
+                    /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%.&+=])(?=\S+$).{6,20}$/,
+                  message:
+                    "Password must have uppercase, lowercase, digit, and special char (@#$%.&+=)",
+                },
               })}
               type="password"
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-sm ${
@@ -91,23 +112,46 @@ function Login() {
             )}
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Confirm Password
+            </label>
+            <input
+              {...register("confirmPassword", {
+                required: "Please confirm your password",
+                validate: (value) =>
+                  value === password || "Passwords do not match",
+              })}
+              type="password"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-sm ${
+                errors.confirmPassword ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="••••••••"
+            />
+            {errors.confirmPassword && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={loading}
             className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <Link
-              to="/register"
+              to="/login"
               className="text-blue-500 hover:text-blue-600 font-medium"
             >
-              Sign up here
+              Login here
             </Link>
           </p>
         </div>
@@ -116,4 +160,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

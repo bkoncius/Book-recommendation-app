@@ -1,6 +1,10 @@
 import express from "express";
 import { pool } from "./config/db.js";
 import authRoute from "./routes/auth.routes.js";
+import booksRoute from "./routes/books.routes.js";
+import favoritesRoute from "./routes/favorites.routes.js";
+import commentsRoute from "./routes/comments.routes.js";
+import ratingsRoute from "./routes/ratings.routes.js";
 import cors from "cors";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -28,15 +32,18 @@ app.use(requestLogger);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
   }),
 );
 
 app.use(express.json());
 
-// app.use("/api/v1/books", booksRoute);
-// app.use("/api/v1/authors", authorsRoute);
+// API Routes
+app.use("/api/v1/books", booksRoute);
+app.use("/api/v1/favorites", favoritesRoute);
+app.use("/api/v1/comments", commentsRoute);
+app.use("/api/v1/ratings", ratingsRoute);
 app.use("/api/v1/auth", authRoute);
 
 app.use(errorHandler);
