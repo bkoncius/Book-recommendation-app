@@ -1,26 +1,35 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { Routes, Route } from "react-router";
+import Navbar from "./components/Navbar.jsx";
+import Login from "./components/Login.jsx";
+import AdminDashboard from "./components/AdminDashboard.jsx";
+import UserDashboard from "./components/UserDashboard.jsx";
+import RequireAdmin from "./components/RequireAdmin.jsx";
+import RequireAuth from "./components/RequireAuth.jsx";
+
 function App() {
-  const [message, setMessage] = useState("");
-
-  const fetchAPI = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000");
-      setMessage(response.data.message);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setMessage("failed to connect to backend");
-    }
-  };
-
-  useEffect(() => {
-    fetchAPI();
-  }, []);
-
   return (
     <>
-      <h1>Book recommendation</h1>
-      <p>Backend status: {message} </p>
+      <Navbar />
+      <Routes>
+        <Route path="/" />
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <AdminDashboard />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <UserDashboard />
+            </RequireAuth>
+          }
+        />
+      </Routes>
     </>
   );
 }
