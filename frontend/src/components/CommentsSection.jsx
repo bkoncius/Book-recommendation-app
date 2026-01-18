@@ -92,48 +92,45 @@ export default function CommentsSection({ bookId }) {
   };
 
   return (
-    <div className="bg-white rounded-lg p-8">
-      <h2 className="text-2xl font-bold mb-6">Comments ({comments.length})</h2>
+    <div className="comments-section">
+      <h2>Comments ({comments.length})</h2>
 
       {user && (
-        <form className="mb-8 pb-8 border-b" onSubmit={handleAddComment}>
+        <form className="comment-form" onSubmit={handleAddComment}>
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Share your thoughts about this book..."
             rows="4"
             disabled={submitting}
-            className="w-full p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-500 disabled:opacity-60"
           />
-          <button
-            type="submit"
-            disabled={submitting}
-            className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-60 text-sm font-medium transition"
-          >
+          <button type="submit" disabled={submitting}>
             {submitting ? "Posting..." : "Post Comment"}
           </button>
         </form>
       )}
 
       {!user && (
-        <div className="mb-8 pb-8 border-b bg-gray-50 p-4 rounded-md text-center text-gray-600 text-sm">
-          Please log in to comment on this book
+        <div className="login-prompt">
+          <p>Please log in to comment on this book</p>
         </div>
       )}
 
       {loading ? (
-        <div className="text-center py-8 text-gray-500 text-sm">Loading comments...</div>
+        <div className="comments-loading">Loading comments...</div>
       ) : error ? (
-        <div className="text-center py-8 text-red-600 text-sm">{error}</div>
+        <div className="comments-error">{error}</div>
       ) : comments.length === 0 ? (
-        <div className="text-center py-8 text-gray-500 text-sm">No comments yet. Be the first to comment!</div>
+        <div className="no-comments">
+          No comments yet. Be the first to comment!
+        </div>
       ) : (
-        <div className="space-y-4">
+        <div className="comments-list">
           {comments.map((comment) => (
-            <div key={comment.id} className="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
-              <div className="flex justify-between mb-2">
-                <p className="font-semibold text-sm text-gray-800">{comment.email}</p>
-                <p className="text-xs text-gray-500">
+            <div key={comment.id} className="comment-item">
+              <div className="comment-header">
+                <p className="comment-author">{comment.username}</p>
+                <p className="comment-date">
                   {new Date(comment.created_at).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
@@ -143,26 +140,25 @@ export default function CommentsSection({ bookId }) {
               </div>
 
               {editingId === comment.id ? (
-                <div className="flex flex-col gap-3">
+                <div className="comment-edit">
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     rows="3"
                     disabled={submitting}
-                    className="w-full p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-500 disabled:opacity-60"
                   />
-                  <div className="flex gap-2">
+                  <div className="edit-actions">
                     <button
                       onClick={() => handleSaveEdit(comment.id)}
                       disabled={submitting}
-                      className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-60 text-sm transition"
+                      className="save-btn"
                     >
                       Save
                     </button>
                     <button
                       onClick={handleCancelEdit}
                       disabled={submitting}
-                      className="px-3 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 disabled:opacity-60 text-sm transition"
+                      className="cancel-btn"
                     >
                       Cancel
                     </button>
@@ -170,18 +166,20 @@ export default function CommentsSection({ bookId }) {
                 </div>
               ) : (
                 <>
-                  <p className="text-gray-700 text-sm mb-3">{comment.comment}</p>
+                  <p className="comment-content">{comment.content}</p>
                   {user && user.id === comment.user_id && (
-                    <div className="flex gap-2 text-xs">
+                    <div className="comment-actions">
                       <button
-                        onClick={() => handleEditComment(comment.id, comment.comment)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                        onClick={() =>
+                          handleEditComment(comment.id, comment.content)
+                        }
+                        className="edit-btn"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteComment(comment.id)}
-                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                        className="delete-btn"
                       >
                         Delete
                       </button>

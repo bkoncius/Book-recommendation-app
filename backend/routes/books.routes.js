@@ -4,6 +4,7 @@ import {
   getBookById,
   getCategories,
 } from "../controllers/books.controller.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = express.Router();
 

@@ -57,7 +57,7 @@ export const getComments = async (req, res) => {
     const { bookId } = req.params;
 
     const result = await pool.query(
-      `SELECT c.*, u.username FROM comments c
+      `SELECT c.*, u.email FROM comments c
        JOIN users u ON c.user_id = u.id
        WHERE c.book_id = $1
        ORDER BY c.created_at DESC`,
@@ -118,7 +118,7 @@ export const updateComment = async (req, res) => {
     }
 
     const result = await pool.query(
-      "UPDATE comments SET content = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *",
+      "UPDATE comments SET comment = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *",
       [content.trim(), commentId],
     );
 
