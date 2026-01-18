@@ -23,7 +23,7 @@ export const authSchema = {
         options:
           /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%.&+=])(?=\S+$).{6,20}$/,
         errorMessage:
-          "Password must be 6-20 cahrs and include at least one uppercase letter, one digit, an one special charcters",
+          "Password must have uppercase, lowercase, digit, and special char (@#$%.&+=)",
       },
     },
   }),

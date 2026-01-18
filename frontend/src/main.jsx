@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router";
 import App from "./App.jsx";
 import { AuthProvider } from "./context/authProvider.jsx";
 import AuthGate from "./components/AuthGate.jsx";
+import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
