@@ -5,9 +5,9 @@ const ACCESS_COOKIE = "access_token";
 
 export const createAccessToken = (user) => {
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email, role_id: user.role_id },
     process.env.JWT_ACCESS_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "15m" },
   );
 };
 

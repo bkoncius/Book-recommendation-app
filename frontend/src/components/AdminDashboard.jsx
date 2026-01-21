@@ -1,13 +1,30 @@
+import { useState } from "react";
+import CategoryManager from "./CategoryManager";
+
 export default function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState("categories");
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-blue-600 text-white py-10 text-center">
-        <h1 className="text-4xl font-bold">Admin Dashboard</h1>
-      </div>
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-white rounded-lg p-8 text-center text-gray-600">
-          <p>Admin features coming soon...</p>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold text-gray-800 mb-8">
+          Admin Dashboard
+        </h1>
+
+        <div className="flex gap-4 mb-8">
+          <button
+            onClick={() => setActiveTab("categories")}
+            className={`px-6 py-2 rounded-lg font-medium transition ${
+              activeTab === "categories"
+                ? "bg-blue-500 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            Manage Categories
+          </button>
         </div>
+
+        <div>{activeTab === "categories" && <CategoryManager />}</div>
       </div>
     </div>
   );

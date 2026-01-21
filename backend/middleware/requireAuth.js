@@ -14,7 +14,7 @@ export const requireAuth = (req, res, next) => {
     req.user = {
       id: decoded.id,
       email: decoded.email,
-      role: decoded.role,
+      role_id: decoded.role_id,
     };
 
     next();

@@ -8,7 +8,7 @@ function RequireAdmin({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== "admin") {
+  if (user.role_id !== 2) {
     return <Navigate to="/" replace />;
   }
 
