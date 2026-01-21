@@ -2,6 +2,7 @@ import express from "express";
 import { pool } from "./config/db.js";
 import authRoute from "./routes/auth.routes.js";
 import booksRoute from "./routes/books.routes.js";
+import categoriesRoute from "./routes/categories.routes.js";
 import favoritesRoute from "./routes/favorites.routes.js";
 import commentsRoute from "./routes/comments.routes.js";
 import ratingsRoute from "./routes/ratings.routes.js";
@@ -32,15 +33,15 @@ app.use(requestLogger);
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: "http://localhost:5173",
     credentials: true,
   }),
 );
 
 app.use(express.json());
 
-// API Routes
 app.use("/api/v1/books", booksRoute);
+app.use("/api/v1/categories", categoriesRoute);
 app.use("/api/v1/favorites", favoritesRoute);
 app.use("/api/v1/comments", commentsRoute);
 app.use("/api/v1/ratings", ratingsRoute);

@@ -38,7 +38,7 @@ function Navbar() {
                   My Favorites
                 </Link>
 
-                {user.role === "admin" && (
+                {user.role_id === 2 && (
                   <Link
                     to="/admin"
                     className="text-gray-700 hover:text-blue-600 transition text-sm font-medium"
