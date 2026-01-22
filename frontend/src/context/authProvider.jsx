@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         setUser(response.data.data);
       } catch (error) {
         // User not authenticated, that's fine
-        console.log("User not authenticated");
+        console.log("User not authenticated", error);
       } finally {
         setLoading(false);
       }
@@ -34,8 +34,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
-    </AuthContext>
+    </AuthContext.Provider>
   );
 };

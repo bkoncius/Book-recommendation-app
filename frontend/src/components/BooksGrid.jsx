@@ -12,7 +12,7 @@ export default function BooksGrid() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const booksPerPage = 12;
+  const booksPerPage = 8;
 
   useEffect(() => {
     fetchCategories();
@@ -43,7 +43,7 @@ export default function BooksGrid() {
 
   const fetchCategories = async () => {
     try {
-      const response = await api.get("/books/categories");
+      const response = await api.get("/categories");
       setCategories(response.data.data);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
@@ -149,7 +149,7 @@ export default function BooksGrid() {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4 mt-8 pt-6 border-t">
+                <div className="flex justify-center items-center gap-4 mt-8 pt-6">
                   <button
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
