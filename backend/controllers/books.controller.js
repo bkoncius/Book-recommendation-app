@@ -101,3 +101,164 @@ export const getBookById = async (req, res) => {
     });
   }
 };
+
+export const createBook = async (req, res) => {
+  try {
+    const { title, description, image_url, category_id, isbn, pages } =
+      req.body;
+
+    if (!title || title.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Book title is required",
+      });
+    }
+
+    // Check if category exists (if provided)
+    if (category_id) {
+      const categoryExists = await pool.query(
+        "SELECT * FROM categories WHERE id = $1",
+        [category_id],
+      );
+      if (categoryExists.rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Category not found",
+        });
+      }
+    }
+
+    const result = await pool.query(
+      "INSERT INTO books (title, description, image_url, category_id, isbn, pages) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [
+        title.trim(),
+        description || null,
+        image_url || null,
+        category_id || null,
+        isbn || null,
+        pages || null,
+      ],
+    );
+
+    logger.info(`Book created: ${title}`);
+    res.status(201).json({
+      success: true,
+      message: "Book created successfully",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    logger.error(`Error creating book: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create book",
+      error: error.message,
+    });
+  }
+};
+
+export const updateBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, image_url, category_id, isbn, pages } =
+      req.body;
+
+    if (!title || title.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Book title is required",
+      });
+    }
+
+    // Check if book exists
+    const bookExists = await pool.query("SELECT * FROM books WHERE id = $1", [
+      id,
+    ]);
+
+    if (bookExists.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Book not found",
+      });
+    }
+
+    // Check if category exists (if provided)
+    if (category_id) {
+      const categoryExists = await pool.query(
+        "SELECT * FROM categories WHERE id = $1",
+        [category_id],
+      );
+      if (categoryExists.rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Category not found",
+        });
+      }
+    }
+
+    const result = await pool.query(
+      "UPDATE books SET title = $1, description = $2, image_url = $3, category_id = $4, isbn = $5, pages = $6 WHERE id = $7 RETURNING *",
+      [
+        title.trim(),
+        description || null,
+        image_url || null,
+        category_id || null,
+        isbn || null,
+        pages || null,
+        id,
+      ],
+    );
+
+    logger.info(`Book updated: ${title}`);
+    res.json({
+      success: true,
+      message: "Book updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    logger.error(`Error updating book: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update book",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if book exists
+    const bookExists = await pool.query("SELECT * FROM books WHERE id = $1", [
+      id,
+    ]);
+
+    if (bookExists.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Book not found",
+      });
+    }
+
+    // Delete related records first (ratings, comments, favorites)
+    await pool.query("DELETE FROM ratings WHERE book_id = $1", [id]);
+    await pool.query("DELETE FROM comments WHERE book_id = $1", [id]);
+    await pool.query("DELETE FROM favorites WHERE book_id = $1", [id]);
+
+    // Delete the book
+    await pool.query("DELETE FROM books WHERE id = $1", [id]);
+
+    logger.info(`Book deleted: ${id}`);
+    res.json({
+      success: true,
+      message: "Book deleted successfully",
+    });
+  } catch (error) {
+    logger.error(`Error deleting book: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete book",
+      error: error.message,
+    });
+  }
+};

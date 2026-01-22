@@ -48,24 +48,6 @@ export default function RatingSection({ bookId }) {
     }
   };
 
-  const StarRating = ({ value, onRate, onHover, onLeave }) => {
-    return (
-      <div className="star-rating" onMouseLeave={onLeave}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            className={`star ${star <= (hoverRating || userRating) ? "active" : ""}`}
-            onMouseEnter={() => onHover(star)}
-            onClick={() => onRate(star)}
-            aria-label={`Rate ${star} stars`}
-          >
-            ★
-          </button>
-        ))}
-      </div>
-    );
-  };
-
   if (loading) return <div className="rating-loading">Loading ratings...</div>;
 
   return (

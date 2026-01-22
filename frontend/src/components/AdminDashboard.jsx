@@ -1,5 +1,6 @@
 import { useState } from "react";
 import CategoryManager from "./CategoryManager";
+import BookManager from "./BookManager";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("categories");
@@ -22,9 +23,22 @@ export default function AdminDashboard() {
           >
             Manage Categories
           </button>
+          <button
+            onClick={() => setActiveTab("books")}
+            className={`px-6 py-2 rounded-lg font-medium transition ${
+              activeTab === "books"
+                ? "bg-blue-500 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            Manage Books
+          </button>
         </div>
 
-        <div>{activeTab === "categories" && <CategoryManager />}</div>
+        <div>
+          {activeTab === "categories" && <CategoryManager />}
+          {activeTab === "books" && <BookManager />}
+        </div>
       </div>
     </div>
   );
