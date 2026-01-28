@@ -8,7 +8,7 @@ import RatingSection from "./RatingSection";
 export default function BookDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,7 +16,7 @@ export default function BookDetail() {
 
   useEffect(() => {
     fetchBookDetails();
-  }, [id]);
+  }, [id, user, authLoading]);
 
   const fetchBookDetails = async () => {
     try {
@@ -24,14 +24,28 @@ export default function BookDetail() {
       const response = await api.get(`/books/${id}`);
       setBook(response.data.data);
 
-      if (user) {
+      // Check favorite status only if user is logged in and auth is loaded
+      if (user && !authLoading) {
         try {
+          console.log(
+            "Fetching favorite status for user:",
+            user.id,
+            "book:",
+            id,
+          );
           const favResponse = await api.get(`/favorites/check/${id}`);
+          console.log("Favorite response:", favResponse.data);
           setIsFavorite(favResponse.data.isFavorite);
         } catch (err) {
-          console.log("Could not fetch favorite status:", err);
+          console.error(
+            "Error fetching favorite status:",
+            err.response?.data || err.message,
+          );
           setIsFavorite(false);
         }
+      } else {
+        console.log("User not loaded yet or not authenticated");
+        setIsFavorite(false);
       }
     } catch (err) {
       setError("Failed to fetch book details");
@@ -42,20 +56,32 @@ export default function BookDetail() {
   };
 
   const handleFavoriteToggle = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     try {
       if (isFavorite) {
         await api.delete(`/favorites/${id}`);
+        setIsFavorite(false);
       } else {
         await api.post(`/favorites`, { bookId: parseInt(id) });
+        setIsFavorite(true);
       }
-      setIsFavorite(!isFavorite);
     } catch (error) {
-      alert("Please login to manage favorites");
       console.error("Error toggling favorite:", error);
+      // Refetch favorite status to sync with server
+      try {
+        const favResponse = await api.get(`/favorites/check/${id}`);
+        setIsFavorite(favResponse.data.isFavorite);
+      } catch (err) {
+        console.error("Error refetching favorite status:", err);
+      }
     }
   };
 
-  if (loading)
+  if (loading || authLoading)
     return <div className="text-center py-12 text-gray-600">Loading...</div>;
   if (error)
     return <div className="text-center py-12 text-red-600">{error}</div>;
